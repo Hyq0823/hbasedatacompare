@@ -1,6 +1,6 @@
 # Concurrent scanning of data sources 工具介绍
 ```
-  这是一个并发扫描数据源(hbase,redis)的工具,多线程scan提高效率。
+  这是一个并发扫描数据源(hbase,redis)的工具,多线程scan提高效率，但会对机器以及集群造成一定压力。
 ```
 
 ## 代码说明

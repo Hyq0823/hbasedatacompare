@@ -15,12 +15,17 @@ import java.util.concurrent.Future;
 
 /**
  * Created by lf52 on 2017/11/24.
- * 多线程scan redis（每个线程scan一个redis的slave）
+ * 多线程scan redis（每个线程scan一个redis的slave）获取所有的key，只适用于redis3.0以上cluster模式
+ *     1.redis客户端需要提供获取所有slave节点id，已经在指定节点上scan key的api。
+ *     2.如果key的数目很多需要在程序启动的时候指定合适的jvm内存大小防止内存溢出。
+ *     3.scan redis key不属于cpu密集型操作，线程池大小可以设置大一些（cpu核数的两倍）
  */
 public class concurrentRedisScan {
 
-    public static final ExecutorService executorService =  Executors.newFixedThreadPool(10);
+
     public static final Log log = LogFactory.getLog(concurrentRedisScan.class);
+
+    public static final ExecutorService executorService =  Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
     public static final String CACHE_PATTERN_KEYS = "itemService_itemPricingByType*";
 
     /**

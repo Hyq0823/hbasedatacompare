@@ -1,5 +1,6 @@
 package util;
 
+import constant.Constant;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.TableName;
@@ -160,7 +161,7 @@ public class HbaseUtils {
 		return results;  
 	}
 
-	public static byte[] BYTE_CF_EC = Bytes.toBytes("BaseInfo");
+
 	public List<Result> getResultList(TableName tablename, List<Result> resultlist,List<byte[]> columns) {
 		List<Result> results = new LinkedList<Result>();
 		List<Get> gets = new LinkedList<Get>();
@@ -171,7 +172,7 @@ public class HbaseUtils {
 			for(Result result:resultlist){
 				//构造getlist批量查询
 				Get get = new Get(result.getRow());
-				columns.forEach(column->get.addColumn(BYTE_CF_EC,column));
+				columns.forEach(column->get.addColumn(Constant.BYTE_CF_EC,column));
 				gets.add(get);
 
 			}

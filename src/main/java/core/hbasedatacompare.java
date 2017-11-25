@@ -1,5 +1,6 @@
 package core;
 
+import constant.Constant;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -32,7 +33,6 @@ public class hbasedatacompare {
 
     private static Connection firsthbasegetConnection = null;
     private static HbaseUtils secondhbaseutil = null;
-    public static byte[] BYTE_CF_EC = Bytes.toBytes("BaseInfo");
     public static ExecutorService threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()/2);
     private LinkedList<String> compareList  = new LinkedList<>();
     private List<byte[]> columnList = new ArrayList<>(20);
@@ -223,7 +223,7 @@ public class hbasedatacompare {
                 long startTime = endTime - 1000;
                 scan.setTimeRange(startTime, endTime);*/
 
-                columnList.forEach(column->scan.addColumn(BYTE_CF_EC,column));
+                columnList.forEach(column->scan.addColumn(Constant.BYTE_CF_EC,column));
                 ResultScanner resultScanner = hbaseTable.getScanner(scan);
                 Iterator<Result> iterator = resultScanner.iterator();
                 String threadname = Thread.currentThread().getName();

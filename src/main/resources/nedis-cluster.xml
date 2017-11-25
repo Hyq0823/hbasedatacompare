@@ -1,0 +1,39 @@
+<nedis>
+	<nodes>
+      <!--  <node host="10.16.46.175" port="8007" />-->
+        <node host="10.16.46.172" port="8008" />
+	</nodes>
+    <client>
+        <optout>10000000</optout>
+        <readFrom>0</readFrom>
+        <ioThreads>20</ioThreads>
+        <computationThreads>20</computationThreads>
+        <timeout>8</timeout>
+        <password></password>
+        <maxRedirects>5</maxRedirects>
+        <periodicRefresh>true</periodicRefresh>
+        <refreshPeriod>120</refreshPeriod>
+        <adaptiveRefreashTimeOut>30</adaptiveRefreashTimeOut>
+        <refreshTriggersReconnectAttempts>5</refreshTriggersReconnectAttempts>
+    </client>
+    <stringPool>
+        <lifo>true</lifo>
+        <maxActive>10</maxActive>
+        <maxIdle>10</maxIdle>
+        <maxWait>10000</maxWait>
+        <minEvictableIdleTimeMillis>10</minEvictableIdleTimeMillis>
+        <minIdle>10</minIdle>
+        <testOnBorrow>true</testOnBorrow>
+        <testOnReturn>false</testOnReturn>
+    </stringPool>
+    <bytePool>
+        <lifo>true</lifo>
+        <maxActive>10</maxActive>
+        <maxIdle>10</maxIdle>
+        <maxWait>10000</maxWait>
+        <minEvictableIdleTimeMillis>10</minEvictableIdleTimeMillis>
+        <minIdle>10</minIdle>
+        <testOnBorrow>true</testOnBorrow>
+        <testOnReturn>false</testOnReturn>
+    </bytePool>
+</nedis>

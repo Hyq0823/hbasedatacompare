@@ -1,5 +1,6 @@
 package core;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import constant.Constant;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
@@ -10,10 +11,7 @@ import util.HbaseUtils;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 /**
  * Created by lf52 on 2017/10/19.
@@ -33,7 +31,10 @@ public class hbasedatacompare {
 
     private static Connection firsthbasegetConnection = null;
     private static HbaseUtils secondhbaseutil = null;
-    public static ExecutorService threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()/2);
+    private static ExecutorService threadPool = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors()/2, Runtime.getRuntime().availableProcessors()/2, 60, TimeUnit.SECONDS,
+            new ArrayBlockingQueue<Runnable>(Runtime.getRuntime().availableProcessors() * 2, true),
+            new ThreadFactoryBuilder().setNameFormat("Hbase Scan Pool-thread-%d").build(),
+            new ThreadPoolExecutor.AbortPolicy());
     private LinkedList<String> compareList  = new LinkedList<>();
     private List<byte[]> columnList = new ArrayList<>(20);
 

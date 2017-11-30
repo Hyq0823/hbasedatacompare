@@ -1,5 +1,6 @@
 package core;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.lambdaworks.redis.KeyScanCursor;
 import com.lambdaworks.redis.ScanArgs;
 import com.newegg.ec.nedis.bootstrap.Nedis;
@@ -8,10 +9,7 @@ import org.apache.commons.logging.LogFactory;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 /**
  * Created by lf52 on 2017/11/24.
@@ -25,7 +23,10 @@ public class concurrentRedisScan {
 
     public static final Log log = LogFactory.getLog(concurrentRedisScan.class);
 
-    public static final ExecutorService executorService =  Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
+    public static final ExecutorService executorService =  new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors()*2, Runtime.getRuntime().availableProcessors()*2, 60, TimeUnit.SECONDS,
+            new ArrayBlockingQueue<Runnable>(Runtime.getRuntime().availableProcessors() * 8, true),
+            new ThreadFactoryBuilder().setNameFormat("Redis Scan Pool-thread-%d").build(),
+            new ThreadPoolExecutor.AbortPolicy());
     public static final String CACHE_PATTERN_KEYS = "itemService_itemPricingByType*";
 
     /**

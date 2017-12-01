@@ -1,7 +1,7 @@
 <nedis>
 	<nodes>
       <!--  <node host="10.16.46.175" port="8007" />-->
-        <node host="10.16.46.172" port="8008" />
+        <node host="172.16.35.233" port="8022" />
 	</nodes>
     <client>
         <optout>10000000</optout>

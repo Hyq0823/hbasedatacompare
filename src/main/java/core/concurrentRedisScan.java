@@ -27,25 +27,25 @@ public class concurrentRedisScan {
             new ArrayBlockingQueue<Runnable>(Runtime.getRuntime().availableProcessors() * 8, true),
             new ThreadFactoryBuilder().setNameFormat("Redis Scan Pool-thread-%d").build(),
             new ThreadPoolExecutor.AbortPolicy());
-    public static final String CACHE_PATTERN_KEYS = "itemService_itemPricingByType*";
+    public static final String CACHE_PATTERN_KEYS = "itemService_cache|*";
 
     /**
      * 获取 slave 中所有的 key
      * @return
      */
     private static int getSlaveRedisKeys () {
-        List<Future<List<String>>> list = new LinkedList<>();
+        List<Future<String>> list = new LinkedList<>();
         Nedis nedis = new Nedis("nedis-cluster.xml");
         int total = 0;
         try {
             log.info( "get slave of list: " + nedis.getAllSlaveNodes() );
             for(String slaveNode:nedis.getAllSlaveNodes()){
                 ScanRedisCallback scanRedisCallback = new ScanRedisCallback(slaveNode);
-                Future<List<String>> future = executorService.submit(scanRedisCallback);
+                Future<String> future = executorService.submit(scanRedisCallback);
                 list.add(future);
             }
-            for(Future<List<String>> future : list){
-                total = total + future.get().size();
+            for(Future<String> future : list){
+                total = total + Integer.parseInt(future.get());
             }
             log.info("add scanRedisCallback to executor pool finish!!!!! total keys: " + total );
         }catch ( Exception e ){
@@ -59,13 +59,14 @@ public class concurrentRedisScan {
     /**
      *  扫描 redis
      */
-    static class ScanRedisCallback implements Callable<List<String>> {
+    static class ScanRedisCallback implements Callable<String> {
         private String currentNodeId;
         public ScanRedisCallback(String currentNodeId){
             this.currentNodeId = currentNodeId;
         }
+        public int keysize = 0;
         @Override
-        public List<String> call() throws Exception {
+        public String call() throws Exception {
             Nedis nedis = new Nedis("nedis-cluster.xml");
             List<String> keysList = new LinkedList<>();
             try{
@@ -78,14 +79,25 @@ public class concurrentRedisScan {
                 while(!scanCursor.isFinished()){
                     scanCursor= nedis.scan(scanCursor,scanArgs,currentNodeId);
                     keysList.addAll(scanCursor.getKeys());
+                    if(keysList.size() >= 1000){
+                        keysize = keysize + keysList.size();
+                        log.info(Thread.currentThread().getName() + " ======================now size :"+ keysize);
+                        keysList = new LinkedList<>();
+                    }
+
                 }
-                System.out.println(Thread.currentThread().getName()+" keysList size: " + keysList.size());
+
+                if(keysList.size() > 0){
+                    keysize = keysize + keysList.size();
+                    log.info(Thread.currentThread().getName() + " ======================total size :"+ keysize);
+                }
+                log.info(Thread.currentThread().getName() + " keysList size: " + keysize);
             }catch ( Exception e ){
                 log.error( e );
             }finally {
                 nedis.returnResource();
             }
-            return keysList;
+            return keysize+"";
         }
     }
 

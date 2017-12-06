@@ -1,6 +1,7 @@
 package SerializableTest;
 
 import SerializableTest.Utils.SerializableUtils;
+import SerializableTest.Utils.SerializationUtil;
 import SerializableTest.entity.Person;
 import SerializableTest.entity.User;
 import org.junit.Test;
@@ -19,13 +20,24 @@ public class SerializableTest {
      */
 
     @Test
-    public void test(){
+    public void test1(){
         User user = (User) SerializableUtils.deSerialByte(SerializableUtils.serialByte(new User("user", 15)));
 
         Person person = (Person)SerializableUtils.deSerialByte(SerializableUtils.serialByte(new Person("person", 18)));
 
         //System.out.println("user:"+user.toString());
 
-        System.out.println("person:"+person.toString());
+        System.out.println("person:" + person.toString());
+    }
+
+    /**
+     * test protostuff
+     */
+    @Test
+    public void test2(){
+        User user = new User("user", 15);
+        Person person = new Person("person", 18);
+        System.out.println(SerializationUtil.deserialize(SerializationUtil.serialize(user), User.class));
+        System.out.println(SerializationUtil.deserialize(SerializationUtil.serialize(person), Person.class));
     }
 }

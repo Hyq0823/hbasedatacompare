@@ -27,7 +27,7 @@ public class concurrentRedisScan {
             new ArrayBlockingQueue<Runnable>(Runtime.getRuntime().availableProcessors() * 8, true),
             new ThreadFactoryBuilder().setNameFormat("Redis Scan Pool-thread-%d").build(),
             new ThreadPoolExecutor.AbortPolicy());
-    public static final String CACHE_PATTERN_KEYS = "itemService_cache|*";
+    public static final String CACHE_PATTERN_KEYS = "*";
 
     /**
      * 获取 slave 中所有的 key
@@ -68,13 +68,15 @@ public class concurrentRedisScan {
         @Override
         public String call() throws Exception {
             Nedis nedis = new Nedis("nedis-cluster.xml");
-            List<String> keysList = new LinkedList<>();
+            List<byte[]> keysList = new LinkedList<>();
+            //List<String> keysList = new LinkedList<>();
             try{
                 ScanArgs scanArgs = new ScanArgs();
                 // 如果是初始化状态那么就扫描cache的key
                 scanArgs.match( CACHE_PATTERN_KEYS );
                 scanArgs.limit(1000);
-                KeyScanCursor<String> scanCursor = nedis.scan(null,scanArgs,currentNodeId);
+                KeyScanCursor<byte[]> scanCursor = nedis.scan(null,scanArgs,currentNodeId);
+                //KeyScanCursor<byte[]> scanCursor = nedis.scan(null,scanArgs,currentNodeId);
                 keysList.addAll(scanCursor.getKeys());
                 while(!scanCursor.isFinished()){
                     scanCursor= nedis.scan(scanCursor,scanArgs,currentNodeId);
@@ -102,6 +104,11 @@ public class concurrentRedisScan {
     }
 
     public static void main(String[] args) {
-        System.out.println(getSlaveRedisKeys());
+        long start = System.currentTimeMillis();
+        int totalkey = getSlaveRedisKeys();
+        long end = System.currentTimeMillis();
+        long time = end - start;
+
+        System.out.println("total key is : " + totalkey + " cost time : " + time);
     }
 }

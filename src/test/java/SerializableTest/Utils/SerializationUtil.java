@@ -12,6 +12,8 @@ import java.io.IOException;
 
 /**
  * protostuff 序列化工具类
+ *
+ * protostuff只要保证新字段添加在类的最后，而且用的是sun系列的JDK,可以解决增加或删除Bean中的字段的情况；
  */
 public class SerializationUtil{
     private static Objenesis objenesis = new ObjenesisStd(true);
@@ -25,7 +27,8 @@ public class SerializationUtil{
         Class<T> cls = (Class<T>) obj.getClass();
         LinkedBuffer buffer = LinkedBuffer.allocate(LinkedBuffer.DEFAULT_BUFFER_SIZE);
         Schema<T> schema = getSchema(cls);
-        return ProtostuffIOUtil.toByteArray(obj,schema,buffer);
+        byte[] data = ProtostuffIOUtil.toByteArray(obj,schema,buffer);
+        return data;
     }
     public static <T> T deserialize(byte[] data,Class<T> cls)
     {

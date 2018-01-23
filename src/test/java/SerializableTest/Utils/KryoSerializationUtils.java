@@ -11,11 +11,9 @@ import java.io.*;
  * Created by lf52 on 2018/1/23.
  *
  * kyro 序列化工具类
- *
- *  1.不支持map类型的序列化
- *  2.增加或删除 Bean 中的字段；
-    举例来说，某一个 Bean 使用 Kryo 序列化后，结果被放到 Redis 里做了缓存，如果某次上线增加/删除了这个 Bean 中的一个字段，则缓存中的数据进行反序列化时会报错；作为缓存功能的开发者，此时应该 catch 住异常，清除这条缓存，然后返回 “缓存未命中” 信息给上层调用者。
-    字段顺序的变化不会导致反序列化失败。
+ *  1.增加或删除 Bean 中的字段；
+      举例来说，某一个 Bean 使用 Kryo 序列化后，结果被放到 Redis 里做了缓存，如果某次上线增加/删除了这个 Bean 中的一个字段，则缓存中的数据进行反序列化时会报错；作为缓存功能的开发者，此时应该 catch 住异常，清除这条缓存，然后返回 “缓存未命中” 信息给上层调用者。
+      字段顺序的变化不会导致反序列化失败。
  *
  */
 public class KryoSerializationUtils {
@@ -30,22 +28,12 @@ public class KryoSerializationUtils {
 
         Kryo kryo = new Kryo();
         kryo.setReferences(false);
-        kryo.register(obj.getClass(), new JavaSerializer());
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        Output output = new Output(baos);
-        kryo.writeClassAndObject(output, obj);
-
+        kryo.register(obj.getClass());
+        Output output = new Output(1,4096);
+        kryo.writeObject(output,obj);
+        byte[] b = output.toBytes();
         output.flush();
         output.close();
-
-        byte[] b = baos.toByteArray();
-        try {
-            baos.flush();
-            baos.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         return b;
     }
 
@@ -60,16 +48,15 @@ public class KryoSerializationUtils {
         Kryo kryo = new Kryo();
         //kryo需要先注册，否则会比较耗内存
         kryo.setReferences(false);
-        kryo.register(clazz, new JavaSerializer());
+        kryo.register(clazz);
         ByteArrayInputStream bais = new ByteArrayInputStream(data);
         Input input = new Input(bais);
-        return (T) kryo.readClassAndObject(input);
+        return (T) kryo.readObject(input,clazz);
     }
 
 
     public static <T extends Serializable> void serializationObject(String filename , T obj){
         Kryo kryo = new Kryo();
-        kryo.setReferences(false);
         kryo.register(obj.getClass(), new JavaSerializer());
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

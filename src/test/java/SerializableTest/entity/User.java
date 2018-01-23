@@ -1,6 +1,7 @@
 package SerializableTest.entity;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by lf52 on 2017/12/5.
@@ -12,19 +13,27 @@ public class User implements Serializable{
      */
     private static final long serialVersionUID = 8294180014912103005L;
 
-    public User(String name, int age) {
+    /*
+     * 无参构造，必须要有
+     */
+    public User(){
+
+    }
+    public User(String name, Integer age) {
         this.name = name;
         this.age = age;
     }
 
     private String name;
-    private int age;
+    private Integer age;
 
-    public int getAge() {
+    private List<String> hobby;
+
+    public Integer getAge() {
         return age;
     }
 
-    public void setAge(int age) {
+    public void setAge(Integer age) {
         this.age = age;
     }
 
@@ -36,11 +45,20 @@ public class User implements Serializable{
         this.name = name;
     }
 
+    public List<String> getHobby() {
+        return hobby;
+    }
+
+    public void setHobby(List<String> hobby) {
+        this.hobby = hobby;
+    }
+
     @Override
     public String toString() {
         return "User{" +
                 "name='" + name + '\'' +
                 ", age=" + age +
+                ", hobby=" + hobby +
                 '}';
     }
 }

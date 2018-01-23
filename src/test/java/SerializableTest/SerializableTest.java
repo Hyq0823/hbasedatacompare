@@ -7,6 +7,10 @@ import SerializableTest.entity.Person;
 import SerializableTest.entity.User;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * Created by lf52 on 2017/12/6.
  */
@@ -55,47 +59,75 @@ public class SerializableTest {
      */
     @Test
     public void test4(){
-        User user = new User("user", 15);
-        user.setName("fujun");
-        KryoSerializationUtils.serializationObject("D:\\serialize\\kryo.txt", user);
-        SerializationUtil.serialize("D:\\serialize\\stuff.txt", user);
+        User user = new User("fujun", 15);
+        List<String> hobby = new ArrayList();
+        hobby.add("basketball");
+        hobby.add("football");
+        hobby.add("running");
+        hobby.add("test");
+        user.setHobby(hobby);
+        System.out.println(KryoSerializationUtils.serializationObject(user).length);
+        System.out.println(SerializationUtil.serialize(user).length);
     }
 
     /**
      * test protostuff序列化反序列化速度
      *
-     * 1834  1860  1905
      */
     @Test
     public void test5(){
-        User user = new User("user", 15);
-        user.setName("fujun");
+        List<byte[]> plist = new LinkedList();
+        List<byte[]> klist = new LinkedList();
+
+        byte[] data=null;
+        byte[] data1=null;
+        int size = 100;
         long start = System.currentTimeMillis();
-        for(int i = 0;i < 10000;i ++){
-            SerializationUtil.deserialize(SerializationUtil.serialize(user), User.class);
+        for(int i = 0;i < size;i ++){
+            User user = new User("user" + i, i);
+            data = SerializationUtil.serialize(user);
+            plist.add(data);
         }
         long end = System.currentTimeMillis();
         long time = end - start;
-        System.out.println("cost time : " + time + "ms");
+        System.out.println("protostuff serialize cost time : " + time + " ms, size is :" + data.length);
+
+        long dstart = System.currentTimeMillis();
+
+        for(byte[] user : plist){
+            SerializationUtil.deserialize(user,User.class);
+        }
+        long dend = System.currentTimeMillis();
+        long dtime = dend - dstart;
+        System.out.println("protostuff deSerialize cost time : " + dtime + "ms");
+
+//---------------------------------------------------------------------------------------------
+
+       long kstart = System.currentTimeMillis();
+        for(int i = 0;i < size;i ++){
+            User user = new User("user" + i, i);
+            data1 = KryoSerializationUtils.serializationObject(user);
+            klist.add(data1);
+        }
+
+        long kend = System.currentTimeMillis();
+        long ktime = kend - kstart;
+        System.out.println("kyro serialize cost time : " + ktime + " ms, size is :" + data1.length);
+
+        long dkstart = System.currentTimeMillis();
+
+        for(byte[] user : klist){
+            KryoSerializationUtils.deserializationObject(user,User.class);
+        }
+        long dkend = System.currentTimeMillis();
+        long dktime = dkend - dkstart;
+        System.out.println("kyro deSerialize cost time : " + dktime + "ms");
 
     }
 
-    /**
-     * test kyro序列化反序列化速度
-     *
-     * 623  676  631
-     */
+
     @Test
     public void test6(){
-        User user = new User("user", 15);
-        user.setName("fujun");
-        long start = System.currentTimeMillis();
-        for(int i = 0;i < 10000;i ++){
-           KryoSerializationUtils.deserializationObject(KryoSerializationUtils.serializationObject(user), User.class);
-        }
-        long end = System.currentTimeMillis();
-        long time = end - start;
-        System.out.println("cost time : " + time + "ms");
 
     }
 }

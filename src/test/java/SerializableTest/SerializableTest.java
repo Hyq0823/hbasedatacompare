@@ -1,5 +1,6 @@
 package SerializableTest;
 
+import SerializableTest.Utils.KryoSerializationUtils;
 import SerializableTest.Utils.SerializableUtils;
 import SerializableTest.Utils.SerializationUtil;
 import SerializableTest.entity.Person;
@@ -39,5 +40,62 @@ public class SerializableTest {
         Person person = new Person("person", 18);
         System.out.println(SerializationUtil.deserialize(SerializationUtil.serialize(user), User.class));
         System.out.println(SerializationUtil.deserialize(SerializationUtil.serialize(person), Person.class));
+    }
+
+    @Test
+    public void test3(){
+        User user = new User("user", 15);
+        System.out.println(KryoSerializationUtils.deserializationObject(KryoSerializationUtils.serializationObject(user), User.class));
+    }
+
+    /**
+     * 测试序列化以后文件的大小
+     * kyro 34b
+     * protostuff 9b
+     */
+    @Test
+    public void test4(){
+        User user = new User("user", 15);
+        user.setName("fujun");
+        KryoSerializationUtils.serializationObject("D:\\serialize\\kryo.txt", user);
+        SerializationUtil.serialize("D:\\serialize\\stuff.txt", user);
+    }
+
+    /**
+     * test protostuff序列化反序列化速度
+     *
+     * 1834  1860  1905
+     */
+    @Test
+    public void test5(){
+        User user = new User("user", 15);
+        user.setName("fujun");
+        long start = System.currentTimeMillis();
+        for(int i = 0;i < 10000;i ++){
+            SerializationUtil.deserialize(SerializationUtil.serialize(user), User.class);
+        }
+        long end = System.currentTimeMillis();
+        long time = end - start;
+        System.out.println("cost time : " + time + "ms");
+
+    }
+
+    /**
+     * test kyro序列化反序列化速度
+     *
+     * 623  676  631
+     */
+    @Test
+    public void test6(){
+        User user = new User("user", 15);
+        user.setName("fujun");
+        long start = System.currentTimeMillis();
+        for(int i = 0;i < 10000;i ++){
+           KryoSerializationUtils.deserializationObject(KryoSerializationUtils.serializationObject(user), User.class);
+        }
+        long end = System.currentTimeMillis();
+        long time = end - start;
+        System.out.println("cost time : " + time + "ms");
+
     }
 }

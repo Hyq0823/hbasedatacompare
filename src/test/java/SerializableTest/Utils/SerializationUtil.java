@@ -1,10 +1,14 @@
 package SerializableTest.Utils;
+
 import io.protostuff.LinkedBuffer;
 import io.protostuff.ProtostuffIOUtil;
 import io.protostuff.Schema;
 import io.protostuff.runtime.RuntimeSchema;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 /**
  * protostuff 序列化工具类
@@ -31,6 +35,26 @@ public class SerializationUtil{
         return message;
     }
 
+    public static <T> void serialize(String path,T obj)
+    {
+        Class<T> cls = (Class<T>) obj.getClass();
+        LinkedBuffer buffer = LinkedBuffer.allocate(LinkedBuffer.DEFAULT_BUFFER_SIZE);
+        Schema<T> schema = getSchema(cls);
+        FileOutputStream output = null;
+        try {
+            output = new FileOutputStream(path);
+            ProtostuffIOUtil.writeTo(output,obj,schema,buffer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally{
+            try {
+                output.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
 
 
 }
